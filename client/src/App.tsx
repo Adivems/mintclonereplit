@@ -1,4 +1,5 @@
-import { Switch, Route } from "wouter";
+import { useState, useEffect } from "react";
+import { Switch, Route, useLocation } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
@@ -6,60 +7,63 @@ import Transactions from "@/pages/transactions";
 import Accounts from "@/pages/accounts";
 import Budgets from "@/pages/budgets";
 import AuthPage from "@/pages/auth-page";
-import { useAuth } from "@/hooks/use-auth";
+import { AuthProvider } from "@/hooks/use-auth";
+import {
+  useQuery,
+} from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
-import { Redirect } from "wouter";
-
-// Define a simpler version of protected route that doesn't use the useAuth hook
-function ProtectedRoute({
-  path,
-  component: Component,
-}: {
-  path: string;
-  component: () => React.JSX.Element;
-}) {
-  return (
-    <Route path={path}>
-      {() => {
-        const { user, isLoading } = useAuth();
-        
-        if (isLoading) {
-          return (
-            <div className="flex items-center justify-center min-h-screen">
-              <Loader2 className="h-8 w-8 animate-spin text-border" />
-            </div>
-          );
-        }
-        
-        if (!user) {
-          return <Redirect to="/auth" />;
-        }
-        
-        return <Component />;
-      }}
-    </Route>
-  );
-}
-
-function Router() {
-  return (
-    <Switch>
-      <ProtectedRoute path="/" component={Dashboard} />
-      <ProtectedRoute path="/transactions" component={Transactions} />
-      <ProtectedRoute path="/accounts" component={Accounts} />
-      <ProtectedRoute path="/budgets" component={Budgets} />
-      <Route path="/auth" component={AuthPage} />
-      <Route component={NotFound} />
-    </Switch>
-  );
-}
+import { getQueryFn } from "./lib/queryClient";
+import { User } from "@shared/schema";
 
 function App() {
+  const [location, setLocation] = useLocation();
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  
+  // Check authentication status
+  const { data: user, isLoading } = useQuery<User | null>({
+    queryKey: ["/api/user"],
+    queryFn: getQueryFn({ on401: "returnNull" }),
+  });
+
+  useEffect(() => {
+    if (!isLoading) {
+      setIsAuthenticated(!!user);
+      
+      // Redirect based on auth status
+      if (user && location === "/auth") {
+        setLocation("/");
+      } else if (!user && location !== "/auth" && isAuthenticated === false) {
+        setLocation("/auth");
+      }
+    }
+  }, [user, isLoading, location, setLocation, isAuthenticated]);
+
+  // Show loading indicator while checking auth
+  if (isLoading || isAuthenticated === null) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
-    <>
-      <Router />
+    <AuthProvider>
+      <Switch>
+        {isAuthenticated ? (
+          <>
+            <Route path="/" component={Dashboard} />
+            <Route path="/transactions" component={Transactions} />
+            <Route path="/accounts" component={Accounts} />
+            <Route path="/budgets" component={Budgets} />
+          </>
+        ) : (
+          <Route path="/auth" component={AuthPage} />
+        )}
+        <Route component={NotFound} />
+      </Switch>
       <Toaster />
-    </>
+    </AuthProvider>
   );
 }
 

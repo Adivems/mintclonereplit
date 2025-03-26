@@ -34,14 +34,7 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<string>("login");
   const [location, navigate] = useLocation();
-  const { user, loginMutation, registerMutation, isLoading } = useAuth();
-  
-  // If user is already logged in, redirect to dashboard
-  useEffect(() => {
-    if (user) {
-      navigate("/");
-    }
-  }, [user, navigate]);
+  const { loginMutation, registerMutation } = useAuth();
   
   // Login form
   const loginForm = useForm<LoginFormValues>({
@@ -74,15 +67,6 @@ export default function AuthPage() {
     const { confirmPassword, ...userData } = values;
     registerMutation.mutate(userData);
   };
-  
-  // If still checking auth status, show loading
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary-500" />
-      </div>
-    );
-  }
 
   return (
     <div className="min-h-screen flex flex-col md:flex-row">
