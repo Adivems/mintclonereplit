@@ -63,7 +63,7 @@ export function setupAuth(app: Express) {
   });
 
   const registerSchema = insertUserSchema.extend({
-    confirmPassword: z.string()
+    confirmPassword: z.string().min(1, "Please confirm your password")
   }).refine(data => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ["confirmPassword"]
@@ -78,11 +78,12 @@ export function setupAuth(app: Express) {
         return res.status(400).json({ message: "Username already exists" });
       }
 
+      // Remove confirmPassword before creating the user
+      const { confirmPassword, ...userDataToSave } = userData;
+
       const user = await storage.createUser({
-        username: userData.username,
-        password: await hashPassword(userData.password),
-        fullName: userData.fullName,
-        email: userData.email
+        ...userDataToSave,
+        password: await hashPassword(userData.password)
       });
 
       // Remove password from the response
