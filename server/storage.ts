@@ -6,12 +6,11 @@ import {
   budgets, type Budget, type InsertBudget
 } from "@shared/schema";
 import session from "express-session";
-import createMemoryStore from "memorystore";
+import connectPg from "connect-pg-simple";
+import { db } from "./db";
+import { eq, and, desc } from "drizzle-orm";
 
-const MemoryStore = createMemoryStore(session);
-
-// modify the interface with any CRUD methods
-// you might need
+// Interface defining storage operations
 export interface IStorage {
   // User methods
   getUser(id: number): Promise<User | undefined>;
@@ -45,251 +44,280 @@ export interface IStorage {
   deleteBudget(id: number): Promise<boolean>;
   
   // Session store
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private accounts: Map<number, Account>;
-  private categories: Map<number, Category>;
-  private transactions: Map<number, Transaction>;
-  private budgets: Map<number, Budget>;
-  
-  sessionStore: session.SessionStore;
-  
-  private userCurrentId: number;
-  private accountCurrentId: number;
-  private categoryCurrentId: number;
-  private transactionCurrentId: number;
-  private budgetCurrentId: number;
+// PostgreSQL Session Store
+const PostgresSessionStore = connectPg(session);
 
+// Database Storage Implementation
+export class DatabaseStorage implements IStorage {
+  sessionStore: session.Store;
+  
   constructor() {
-    this.users = new Map();
-    this.accounts = new Map();
-    this.categories = new Map();
-    this.transactions = new Map();
-    this.budgets = new Map();
-    
-    this.userCurrentId = 1;
-    this.accountCurrentId = 1;
-    this.categoryCurrentId = 1;
-    this.transactionCurrentId = 1;
-    this.budgetCurrentId = 1;
-    
-    this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000, // prune expired entries every 24h
+    this.sessionStore = new PostgresSessionStore({ 
+      conObject: {
+        connectionString: process.env.DATABASE_URL,
+      },
+      createTableIfMissing: true 
     });
     
     // Initialize default categories
     this.initializeDefaultCategories();
   }
   
-  private initializeDefaultCategories() {
-    const defaultCategories: InsertCategory[] = [
-      { name: 'Housing', type: 'expense', icon: 'home', color: '#60A5FA' },
-      { name: 'Food', type: 'expense', icon: 'utensils', color: '#34D399' },
-      { name: 'Transportation', type: 'expense', icon: 'car', color: '#FBBF24' },
-      { name: 'Entertainment', type: 'expense', icon: 'film', color: '#F87171' },
-      { name: 'Shopping', type: 'expense', icon: 'shopping-bag', color: '#A78BFA' },
-      { name: 'Utilities', type: 'expense', icon: 'bolt', color: '#FDBA74' },
-      { name: 'Healthcare', type: 'expense', icon: 'heartbeat', color: '#F472B6' },
-      { name: 'Personal', type: 'expense', icon: 'user', color: '#6EE7B7' },
-      { name: 'Debt', type: 'expense', icon: 'credit-card', color: '#94A3B8' },
-      { name: 'Income', type: 'income', icon: 'dollar-sign', color: '#10B981' },
-      { name: 'Investments', type: 'income', icon: 'chart-line', color: '#3B82F6' },
-      { name: 'Other', type: 'expense', icon: 'ellipsis-h', color: '#9CA3AF' }
-    ];
-    
-    defaultCategories.forEach(category => {
-      this.createCategory(category);
-    });
+  private async initializeDefaultCategories() {
+    try {
+      const existingCategories = await this.getCategories();
+      
+      // Only add default categories if none exist
+      if (existingCategories.length === 0) {
+        const defaultCategories: InsertCategory[] = [
+          { name: 'Housing', type: 'expense', icon: 'home', color: '#60A5FA' },
+          { name: 'Food', type: 'expense', icon: 'utensils', color: '#34D399' },
+          { name: 'Transportation', type: 'expense', icon: 'car', color: '#FBBF24' },
+          { name: 'Entertainment', type: 'expense', icon: 'film', color: '#F87171' },
+          { name: 'Shopping', type: 'expense', icon: 'shopping-bag', color: '#A78BFA' },
+          { name: 'Utilities', type: 'expense', icon: 'bolt', color: '#FDBA74' },
+          { name: 'Healthcare', type: 'expense', icon: 'heartbeat', color: '#F472B6' },
+          { name: 'Personal', type: 'expense', icon: 'user', color: '#6EE7B7' },
+          { name: 'Debt', type: 'expense', icon: 'credit-card', color: '#94A3B8' },
+          { name: 'Income', type: 'income', icon: 'dollar-sign', color: '#10B981' },
+          { name: 'Investments', type: 'income', icon: 'chart-line', color: '#3B82F6' },
+          { name: 'Other', type: 'expense', icon: 'ellipsis-h', color: '#9CA3AF' }
+        ];
+      
+        for (const category of defaultCategories) {
+          await this.createCategory(category);
+        }
+      }
+    } catch (error) {
+      console.error("Error initializing default categories:", error);
+    }
   }
 
   // User methods
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.userCurrentId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
     return user;
   }
   
   // Account methods
   async getAccounts(userId: number): Promise<Account[]> {
-    return Array.from(this.accounts.values()).filter(
-      (account) => account.userId === userId,
-    );
+    return db.select().from(accounts).where(eq(accounts.userId, userId));
   }
-  
+
   async getAccount(id: number): Promise<Account | undefined> {
-    return this.accounts.get(id);
+    const [account] = await db.select().from(accounts).where(eq(accounts.id, id));
+    return account || undefined;
   }
-  
+
   async createAccount(account: InsertAccount): Promise<Account> {
-    const id = this.accountCurrentId++;
-    const newAccount: Account = { ...account, id };
-    this.accounts.set(id, newAccount);
+    const [newAccount] = await db
+      .insert(accounts)
+      .values(account)
+      .returning();
     return newAccount;
   }
-  
+
   async updateAccount(id: number, accountUpdate: Partial<Account>): Promise<Account | undefined> {
-    const account = this.accounts.get(id);
-    if (!account) return undefined;
-    
-    const updatedAccount = { ...account, ...accountUpdate };
-    this.accounts.set(id, updatedAccount);
-    return updatedAccount;
+    const [updated] = await db
+      .update(accounts)
+      .set(accountUpdate)
+      .where(eq(accounts.id, id))
+      .returning();
+    return updated || undefined;
   }
-  
+
   async deleteAccount(id: number): Promise<boolean> {
-    return this.accounts.delete(id);
+    // First delete related transactions
+    await db.delete(transactions).where(eq(transactions.accountId, id));
+    
+    // Then delete the account
+    await db.delete(accounts).where(eq(accounts.id, id));
+    return true;
   }
-  
+
   // Category methods
   async getCategories(): Promise<Category[]> {
-    return Array.from(this.categories.values());
+    return db.select().from(categories);
   }
-  
+
   async getCategory(id: number): Promise<Category | undefined> {
-    return this.categories.get(id);
+    const [category] = await db.select().from(categories).where(eq(categories.id, id));
+    return category || undefined;
   }
-  
+
   async createCategory(category: InsertCategory): Promise<Category> {
-    const id = this.categoryCurrentId++;
-    const newCategory: Category = { ...category, id };
-    this.categories.set(id, newCategory);
+    const [newCategory] = await db
+      .insert(categories)
+      .values(category)
+      .returning();
     return newCategory;
   }
-  
+
   // Transaction methods
   async getTransactions(userId: number, filters?: Partial<Transaction>): Promise<Transaction[]> {
-    let transactions = Array.from(this.transactions.values()).filter(
-      (transaction) => transaction.userId === userId,
-    );
+    // Start with base query
+    let conditions = eq(transactions.userId, userId);
     
+    // Add filters if they exist
     if (filters) {
-      if (filters.accountId) {
-        transactions = transactions.filter(t => t.accountId === filters.accountId);
+      if (filters.accountId !== undefined) {
+        conditions = and(conditions, eq(transactions.accountId, filters.accountId));
       }
-      
-      if (filters.categoryId) {
-        transactions = transactions.filter(t => t.categoryId === filters.categoryId);
+      if (filters.categoryId !== undefined) {
+        conditions = and(conditions, eq(transactions.categoryId, filters.categoryId));
       }
     }
     
-    // Sort by date, newest first
-    return transactions.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    // Execute query with conditions and sort by date descending
+    return db
+      .select()
+      .from(transactions)
+      .where(conditions)
+      .orderBy(desc(transactions.date));
   }
-  
+
   async getTransaction(id: number): Promise<Transaction | undefined> {
-    return this.transactions.get(id);
+    const [transaction] = await db.select().from(transactions).where(eq(transactions.id, id));
+    return transaction || undefined;
   }
-  
+
   async createTransaction(transaction: InsertTransaction): Promise<Transaction> {
-    const id = this.transactionCurrentId++;
-    const newTransaction: Transaction = { ...transaction, id };
-    this.transactions.set(id, newTransaction);
+    // First create the transaction
+    const [newTransaction] = await db
+      .insert(transactions)
+      .values(transaction)
+      .returning();
     
-    // Update account balance
-    const account = this.accounts.get(newTransaction.accountId);
+    // Then update account balance
+    const account = await this.getAccount(transaction.accountId);
     if (account) {
-      const category = newTransaction.categoryId ? this.categories.get(newTransaction.categoryId) : undefined;
+      const category = transaction.categoryId
+        ? await this.getCategory(transaction.categoryId)
+        : undefined;
       const isIncome = category?.type === 'income';
       
-      const updatedBalance = account.currentBalance + (isIncome ? newTransaction.amount : -newTransaction.amount);
-      this.updateAccount(account.id, { currentBalance: updatedBalance });
+      const updatedBalance = account.currentBalance + (isIncome ? transaction.amount : -transaction.amount);
+      await this.updateAccount(account.id, { currentBalance: updatedBalance });
     }
     
     return newTransaction;
   }
-  
+
   async updateTransaction(id: number, transactionUpdate: Partial<Transaction>): Promise<Transaction | undefined> {
-    const transaction = this.transactions.get(id);
-    if (!transaction) return undefined;
+    // Get current transaction
+    const currentTransaction = await this.getTransaction(id);
+    if (!currentTransaction) return undefined;
     
-    // If amount or category changed, we need to adjust account balance
-    if ((transactionUpdate.amount !== undefined && transactionUpdate.amount !== transaction.amount) ||
-        (transactionUpdate.categoryId !== undefined && transactionUpdate.categoryId !== transaction.categoryId)) {
+    // If amount or category changed, adjust account balance
+    if ((transactionUpdate.amount !== undefined && transactionUpdate.amount !== currentTransaction.amount) ||
+        (transactionUpdate.categoryId !== undefined && transactionUpdate.categoryId !== currentTransaction.categoryId)) {
       
-      const account = this.accounts.get(transaction.accountId);
+      const account = await this.getAccount(currentTransaction.accountId);
       if (account) {
         // Revert old transaction effect
-        const oldCategory = transaction.categoryId ? this.categories.get(transaction.categoryId) : undefined;
+        const oldCategory = currentTransaction.categoryId
+          ? await this.getCategory(currentTransaction.categoryId)
+          : undefined;
         const wasIncome = oldCategory?.type === 'income';
-        account.currentBalance -= (wasIncome ? transaction.amount : -transaction.amount);
+        let updatedBalance = account.currentBalance - (wasIncome ? currentTransaction.amount : -currentTransaction.amount);
         
         // Apply new transaction effect
-        const newCategory = transactionUpdate.categoryId !== undefined ? 
-          this.categories.get(transactionUpdate.categoryId) : oldCategory;
+        const newCategoryId = transactionUpdate.categoryId !== undefined
+          ? transactionUpdate.categoryId
+          : currentTransaction.categoryId;
+        const newCategory = newCategoryId
+          ? await this.getCategory(newCategoryId)
+          : undefined;
         const isIncome = newCategory?.type === 'income';
-        const amount = transactionUpdate.amount !== undefined ? transactionUpdate.amount : transaction.amount;
-        account.currentBalance += (isIncome ? amount : -amount);
+        const amount = transactionUpdate.amount !== undefined
+          ? transactionUpdate.amount
+          : currentTransaction.amount;
+        updatedBalance += (isIncome ? amount : -amount);
         
-        this.accounts.set(account.id, account);
+        // Update the account balance
+        await this.updateAccount(account.id, { currentBalance: updatedBalance });
       }
     }
     
-    const updatedTransaction = { ...transaction, ...transactionUpdate };
-    this.transactions.set(id, updatedTransaction);
-    return updatedTransaction;
+    // Update the transaction
+    const [updated] = await db
+      .update(transactions)
+      .set(transactionUpdate)
+      .where(eq(transactions.id, id))
+      .returning();
+    return updated || undefined;
   }
-  
+
   async deleteTransaction(id: number): Promise<boolean> {
-    const transaction = this.transactions.get(id);
+    // Get the transaction first
+    const transaction = await this.getTransaction(id);
     if (!transaction) return false;
     
     // Update account balance
-    const account = this.accounts.get(transaction.accountId);
+    const account = await this.getAccount(transaction.accountId);
     if (account) {
-      const category = transaction.categoryId ? this.categories.get(transaction.categoryId) : undefined;
+      const category = transaction.categoryId
+        ? await this.getCategory(transaction.categoryId)
+        : undefined;
       const isIncome = category?.type === 'income';
       
       const updatedBalance = account.currentBalance - (isIncome ? transaction.amount : -transaction.amount);
-      this.updateAccount(account.id, { currentBalance: updatedBalance });
+      await this.updateAccount(account.id, { currentBalance: updatedBalance });
     }
     
-    return this.transactions.delete(id);
+    // Delete the transaction
+    await db.delete(transactions).where(eq(transactions.id, id));
+    return true;
   }
-  
+
   // Budget methods
   async getBudgets(userId: number): Promise<Budget[]> {
-    return Array.from(this.budgets.values()).filter(
-      (budget) => budget.userId === userId,
-    );
+    return db.select().from(budgets).where(eq(budgets.userId, userId));
   }
-  
+
   async getBudget(id: number): Promise<Budget | undefined> {
-    return this.budgets.get(id);
+    const [budget] = await db.select().from(budgets).where(eq(budgets.id, id));
+    return budget || undefined;
   }
-  
+
   async createBudget(budget: InsertBudget): Promise<Budget> {
-    const id = this.budgetCurrentId++;
-    const newBudget: Budget = { ...budget, id };
-    this.budgets.set(id, newBudget);
+    const [newBudget] = await db
+      .insert(budgets)
+      .values(budget)
+      .returning();
     return newBudget;
   }
-  
+
   async updateBudget(id: number, budgetUpdate: Partial<Budget>): Promise<Budget | undefined> {
-    const budget = this.budgets.get(id);
-    if (!budget) return undefined;
-    
-    const updatedBudget = { ...budget, ...budgetUpdate };
-    this.budgets.set(id, updatedBudget);
-    return updatedBudget;
+    const [updated] = await db
+      .update(budgets)
+      .set(budgetUpdate)
+      .where(eq(budgets.id, id))
+      .returning();
+    return updated || undefined;
   }
-  
+
   async deleteBudget(id: number): Promise<boolean> {
-    return this.budgets.delete(id);
+    await db.delete(budgets).where(eq(budgets.id, id));
+    return true;
   }
 }
 
-export const storage = new MemStorage();
+// Create and export the storage instance
+export const storage = new DatabaseStorage();
