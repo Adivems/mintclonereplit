@@ -11,12 +11,19 @@ export const users = pgTable("users", {
   email: text("email").notNull(),
 });
 
-export const insertUserSchema = createInsertSchema(users).pick({
-  username: true,
-  password: true,
-  fullName: true,
-  email: true,
-});
+export const insertUserSchema = createInsertSchema(users)
+  .pick({
+    username: true,
+    password: true,
+    fullName: true,
+    email: true,
+  })
+  .extend({
+    username: z.string().min(3, "Username must be at least 3 characters"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    email: z.string().email("Please enter a valid email address"),
+    fullName: z.string().min(1, "Full name is required"),
+  });
 
 // Financial Accounts
 export const accounts = pgTable("accounts", {

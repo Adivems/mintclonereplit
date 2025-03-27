@@ -265,7 +265,7 @@ export default function AuthPage() {
                         {registerMutation.isPending && (
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                         )}
-                        Create Account
+                        Register
                       </Button>
                     </CardFooter>
                   </form>
