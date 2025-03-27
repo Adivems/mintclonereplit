@@ -144,7 +144,7 @@ export default function Budgets() {
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-primary-500" />
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     );
   }
@@ -176,7 +176,7 @@ export default function Budgets() {
             <h1 className="text-2xl font-bold text-neutral-800">Budget Management</h1>
             <Dialog open={isAddBudgetOpen} onOpenChange={setIsAddBudgetOpen}>
               <DialogTrigger asChild>
-                <Button className="mt-4 md:mt-0 bg-primary-500 hover:bg-primary-600">
+                <Button className="mt-4 md:mt-0 bg-primary text-white hover:bg-primary/90">
                   <Plus className="mr-2 h-4 w-4" /> Create Budget
                 </Button>
               </DialogTrigger>
@@ -281,7 +281,11 @@ export default function Budgets() {
                       )}
                     />
                     <DialogFooter>
-                      <Button type="submit" disabled={addBudgetMutation.isPending}>
+                      <Button 
+                        type="submit" 
+                        className="bg-primary text-white hover:bg-primary/90"
+                        disabled={addBudgetMutation.isPending}
+                      >
                         {addBudgetMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Create Budget
                       </Button>
@@ -340,7 +344,7 @@ export default function Budgets() {
                   <p className="text-muted-foreground">
                     Create your first budget to start tracking your spending.
                   </p>
-                  <Button className="mt-4 bg-primary-500 hover:bg-primary-600" onClick={() => setIsAddBudgetOpen(true)}>
+                  <Button className="mt-4 bg-primary text-white hover:bg-primary/90" onClick={() => setIsAddBudgetOpen(true)}>
                     <Plus className="mr-2 h-4 w-4" /> Create Budget
                   </Button>
                 </CardContent>
@@ -362,7 +366,7 @@ function BudgetCard({ budget }: { budget: any }) {
   const getProgressColor = (percentage: number) => {
     if (percentage >= 100) return "bg-red-500";
     if (percentage >= 85) return "bg-yellow-500";
-    return "bg-primary-500";
+    return "bg-primary";
   };
   
   // Format period
@@ -392,7 +396,7 @@ function BudgetCard({ budget }: { budget: any }) {
         />
         
         <div className="mt-2 flex justify-between text-xs">
-          <span className={`font-medium ${budget.percentage >= 100 ? 'text-red-600' : budget.percentage >= 85 ? 'text-yellow-600' : 'text-primary-700'}`}>
+          <span className={`font-medium ${budget.percentage >= 100 ? 'text-red-600' : budget.percentage >= 85 ? 'text-yellow-600' : 'text-primary'}`}>
             {budget.percentage.toFixed(0)}% of budget spent
           </span>
           <span className="text-neutral-500">{formatPeriod(budget.period)}</span>
