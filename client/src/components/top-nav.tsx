@@ -37,18 +37,18 @@ export default function TopNav({ onToggleSidebar }: TopNavProps) {
               <Menu className="h-5 w-5" />
             </Button>
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-white">FinanceTrak</h1>
+          {/* Removed duplicate FinanceTrak text */}
         </div>
         
         <div className="flex-1 flex justify-center max-w-md mx-auto">
           <div className="relative w-full">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-white/70" />
+              <Search className="h-4 w-4 text-[#2ecc71]/70" />
             </div>
             <Input 
               type="text" 
-              className="pl-10 pr-4 py-2 h-10 bg-[#27ae60] text-white border-[#1e8449] border placeholder-white/70 rounded-lg focus:ring-1 focus:ring-white focus:border-white w-full" 
-              placeholder="Search transactions, accounts..." 
+              className="pl-10 pr-4 py-2 h-10 bg-white text-gray-800 border-white border placeholder-gray-500 rounded-lg focus:ring-1 focus:ring-white focus:border-white w-full" 
+              placeholder="Search transactions..." 
             />
           </div>
         </div>
@@ -64,10 +64,10 @@ export default function TopNav({ onToggleSidebar }: TopNavProps) {
           {/* User Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="flex items-center gap-2 text-white border-white hover:bg-[#27ae60] hover:border-white py-1 px-2">
-                <Avatar className="h-7 w-7 border border-white">
-                  <AvatarFallback className="bg-[#27ae60] text-white text-xs">
-                    {user?.fullName?.substring(0, 2) || user?.username?.substring(0, 2) || "U"}
+              <Button variant="outline" className="flex items-center gap-2 bg-white text-gray-800 border-white hover:bg-white hover:border-white py-1 px-2 rounded-lg">
+                <Avatar className="h-7 w-7 border border-[#27ae60]">
+                  <AvatarFallback className="bg-[#e6f9f0] text-[#2ecc71] text-xs">
+                    {user?.fullName?.substring(0, 2) || user?.username?.substring(0, 2) || "Ad"}
                   </AvatarFallback>
                 </Avatar>
                 <span className="font-medium text-sm">{user?.fullName || user?.username}</span>
