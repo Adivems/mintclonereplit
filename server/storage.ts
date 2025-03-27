@@ -3,7 +3,9 @@ import {
   accounts, type Account, type InsertAccount,
   categories, type Category, type InsertCategory,
   transactions, type Transaction, type InsertTransaction,
-  budgets, type Budget, type InsertBudget
+  budgets, type Budget, type InsertBudget,
+  achievements, type Achievement, type InsertAchievement,
+  userAchievements, type UserAchievement, type InsertUserAchievement
 } from "@shared/schema";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
@@ -42,6 +44,14 @@ export interface IStorage {
   createBudget(budget: InsertBudget): Promise<Budget>;
   updateBudget(id: number, budget: Partial<Budget>): Promise<Budget | undefined>;
   deleteBudget(id: number): Promise<boolean>;
+  
+  // Achievement methods
+  getAchievements(): Promise<Achievement[]>;
+  getAchievement(id: number): Promise<Achievement | undefined>;
+  createAchievement(achievement: InsertAchievement): Promise<Achievement>;
+  getUserAchievements(userId: number): Promise<(UserAchievement & { achievement: Achievement })[]>;
+  awardAchievement(userAchievement: InsertUserAchievement): Promise<UserAchievement>;
+  markAchievementViewed(id: number): Promise<UserAchievement | undefined>;
   
   // Session store
   sessionStore: session.Store;
@@ -316,6 +326,77 @@ export class DatabaseStorage implements IStorage {
   async deleteBudget(id: number): Promise<boolean> {
     await db.delete(budgets).where(eq(budgets.id, id));
     return true;
+  }
+  
+  // Achievement methods
+  async getAchievements(): Promise<Achievement[]> {
+    return db.select().from(achievements);
+  }
+
+  async getAchievement(id: number): Promise<Achievement | undefined> {
+    const [achievement] = await db.select().from(achievements).where(eq(achievements.id, id));
+    return achievement || undefined;
+  }
+
+  async createAchievement(achievement: InsertAchievement): Promise<Achievement> {
+    const [newAchievement] = await db
+      .insert(achievements)
+      .values(achievement)
+      .returning();
+    return newAchievement;
+  }
+
+  async getUserAchievements(userId: number): Promise<(UserAchievement & { achievement: Achievement })[]> {
+    const userAchievementResults = await db
+      .select({
+        userAchievement: userAchievements,
+        achievement: achievements
+      })
+      .from(userAchievements)
+      .innerJoin(achievements, eq(userAchievements.achievementId, achievements.id))
+      .where(eq(userAchievements.userId, userId))
+      .orderBy(desc(userAchievements.earnedAt));
+
+    return userAchievementResults.map(result => ({
+      ...result.userAchievement,
+      achievement: result.achievement
+    }));
+  }
+
+  async awardAchievement(userAchievement: InsertUserAchievement): Promise<UserAchievement> {
+    // Check if the user already has this achievement to avoid duplicates
+    const existing = await db
+      .select()
+      .from(userAchievements)
+      .where(
+        and(
+          eq(userAchievements.userId, userAchievement.userId),
+          eq(userAchievements.achievementId, userAchievement.achievementId)
+        )
+      );
+
+    // If the user already has the achievement, don't create a new record
+    if (existing.length > 0) {
+      return existing[0];
+    }
+
+    // Otherwise, award the achievement
+    const [newUserAchievement] = await db
+      .insert(userAchievements)
+      .values(userAchievement)
+      .returning();
+    
+    return newUserAchievement;
+  }
+
+  async markAchievementViewed(id: number): Promise<UserAchievement | undefined> {
+    const [updated] = await db
+      .update(userAchievements)
+      .set({ viewed: true })
+      .where(eq(userAchievements.id, id))
+      .returning();
+    
+    return updated || undefined;
   }
 }
 

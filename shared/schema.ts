@@ -123,3 +123,41 @@ export type BudgetWithCategory = Budget & {
   remaining: number;
   percentage: number;
 };
+
+// Achievements
+export const achievements = pgTable("achievements", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description").notNull(),
+  icon: text("icon").notNull(), // Lucide icon name or SVG path
+  category: text("category").notNull(), // saving, budgeting, tracking, investment
+  criteria: text("criteria").notNull(), // JSON string of criteria
+  backgroundColor: text("background_color").notNull(),
+  textColor: text("text_color").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const insertAchievementSchema = createInsertSchema(achievements).omit({
+  id: true,
+  createdAt: true,
+});
+
+// User Achievements (linking users to their earned achievements)
+export const userAchievements = pgTable("user_achievements", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").notNull().references(() => users.id),
+  achievementId: integer("achievement_id").notNull().references(() => achievements.id),
+  earnedAt: timestamp("earned_at").notNull().defaultNow(),
+  viewed: boolean("viewed").default(false),
+});
+
+export const insertUserAchievementSchema = createInsertSchema(userAchievements).omit({
+  id: true,
+  earnedAt: true,
+});
+
+export type Achievement = typeof achievements.$inferSelect;
+export type InsertAchievement = z.infer<typeof insertAchievementSchema>;
+
+export type UserAchievement = typeof userAchievements.$inferSelect;
+export type InsertUserAchievement = z.infer<typeof insertUserAchievementSchema>;

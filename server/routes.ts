@@ -6,7 +6,9 @@ import { z } from "zod";
 import { 
   insertAccountSchema, 
   insertTransactionSchema, 
-  insertBudgetSchema 
+  insertBudgetSchema,
+  insertAchievementSchema,
+  insertUserAchievementSchema
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -276,6 +278,77 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(204).send();
     } else {
       res.status(500).json({ message: "Failed to delete budget" });
+    }
+  });
+  
+  // Achievements
+  app.get("/api/achievements", async (req, res) => {
+    const achievements = await storage.getAchievements();
+    res.json(achievements);
+  });
+  
+  app.post("/api/achievements", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    if (!req.user?.username.includes('Admin')) {
+      return res.status(403).json({ message: "Only admins can create achievements" });
+    }
+    
+    try {
+      const achievementData = insertAchievementSchema.parse(req.body);
+      const achievement = await storage.createAchievement(achievementData);
+      res.status(201).json(achievement);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid achievement data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to create achievement" });
+    }
+  });
+  
+  // User Achievements
+  app.get("/api/user/achievements", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    
+    const userAchievements = await storage.getUserAchievements(req.user!.id);
+    res.json(userAchievements);
+  });
+  
+  app.post("/api/user/achievements/:achievementId", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    
+    const achievementId = parseInt(req.params.achievementId);
+    const achievement = await storage.getAchievement(achievementId);
+    
+    if (!achievement) {
+      return res.status(404).json({ message: "Achievement not found" });
+    }
+    
+    try {
+      const userAchievementData = insertUserAchievementSchema.parse({
+        userId: req.user!.id,
+        achievementId
+      });
+      
+      const userAchievement = await storage.awardAchievement(userAchievementData);
+      res.status(201).json(userAchievement);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid user achievement data", errors: error.errors });
+      }
+      res.status(500).json({ message: "Failed to award achievement" });
+    }
+  });
+  
+  app.put("/api/user/achievements/:id/viewed", async (req, res) => {
+    if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
+    
+    const userAchievementId = parseInt(req.params.id);
+    const updated = await storage.markAchievementViewed(userAchievementId);
+    
+    if (updated) {
+      res.json(updated);
+    } else {
+      res.status(404).json({ message: "User achievement not found" });
     }
   });
 

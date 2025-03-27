@@ -24,7 +24,7 @@ export default function TopNav({ onToggleSidebar }: TopNavProps) {
   };
   
   return (
-    <div className="bg-primary-600 text-white shadow-sm sticky top-0 z-10">
+    <div className="bg-[#2ecc71] text-white shadow-sm sticky top-0 z-10">
       <div className="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <div className="flex items-center md:hidden">
@@ -32,7 +32,7 @@ export default function TopNav({ onToggleSidebar }: TopNavProps) {
               variant="ghost" 
               size="icon"
               onClick={onToggleSidebar}
-              className="text-white hover:bg-primary-500 hover:text-white"
+              className="text-white hover:bg-[#27ae60] hover:text-white"
             >
               <Menu className="h-5 w-5" />
             </Button>
@@ -47,25 +47,25 @@ export default function TopNav({ onToggleSidebar }: TopNavProps) {
             </div>
             <Input 
               type="text" 
-              className="pl-10 pr-4 py-2 bg-primary-500 text-white border-primary-400 border placeholder-white/70 rounded-lg focus:ring-2 focus:ring-primary-300 focus:border-primary-300" 
+              className="pl-10 pr-4 py-2 bg-[#27ae60] text-white border-[#1e8449] border placeholder-white/70 rounded-lg focus:ring-2 focus:ring-[#1e8449] focus:border-[#1e8449]" 
               placeholder="Search transactions, accounts..." 
             />
           </div>
         </div>
         
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="icon" className="text-white hover:bg-primary-500 relative">
+          <Button variant="ghost" size="icon" className="text-white hover:bg-[#27ae60] relative">
             <Bell className="h-5 w-5" />
             <span className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full"></span>
           </Button>
-          <Button variant="ghost" size="icon" className="text-white hover:bg-primary-500">
+          <Button variant="ghost" size="icon" className="text-white hover:bg-[#27ae60]">
             <PlusCircle className="h-5 w-5" />
           </Button>
           
           {/* User Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2 text-white hover:bg-primary-500">
+              <Button variant="ghost" className="flex items-center gap-2 text-white hover:bg-[#27ae60]">
                 <Avatar className="h-8 w-8 border-2 border-white">
                   <AvatarFallback className="bg-primary-100 text-primary-700">
                     {user?.fullName?.substring(0, 2) || user?.username?.substring(0, 2) || "U"}

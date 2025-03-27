@@ -90,25 +90,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           </div>
         </nav>
         
-        {/* User Menu */}
-        <div className="p-4 border-t border-neutral-200">
-          <div className="flex items-center">
-            <div className="w-8 h-8 rounded-full bg-neutral-300 flex items-center justify-center text-neutral-700">
-              <span className="text-sm font-medium">{initials}</span>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm font-medium text-neutral-800">{user?.fullName}</p>
-              <p className="text-xs text-neutral-500">Free Account</p>
-            </div>
-            <button 
-              className="ml-auto text-neutral-500 hover:text-neutral-700"
-              onClick={handleLogout}
-              disabled={logoutMutation.isPending}
-            >
-              <i className="fas fa-sign-out-alt"></i>
-            </button>
-          </div>
-        </div>
+
       </div>
     </div>
   );

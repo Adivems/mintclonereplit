@@ -8,6 +8,7 @@ import SpendingCategoryChart from "@/components/dashboard/spending-category-char
 import BudgetProgress from "@/components/dashboard/budget-progress";
 import RecentTransactions from "@/components/dashboard/recent-transactions";
 import AccountsOverview from "@/components/dashboard/accounts-overview";
+import AchievementsShowcase from "@/components/dashboard/achievements-showcase";
 import { useAuth } from "@/hooks/use-auth";
 import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
@@ -111,6 +112,11 @@ export default function Dashboard() {
             accounts={accounts} 
             transactions={transactions} 
           />
+          
+          {/* Achievements Showcase */}
+          <div className="mt-6">
+            <AchievementsShowcase />
+          </div>
         </div>
       </div>
     </div>
