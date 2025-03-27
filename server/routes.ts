@@ -195,10 +195,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
     
     try {
-      const budgetData = insertBudgetSchema.parse({
+      // Parse dates from strings if they're not already Date objects
+      const budgetDataWithDates = {
         ...req.body,
-        userId: req.user!.id
-      });
+        userId: req.user!.id,
+        startDate: req.body.startDate ? new Date(req.body.startDate) : undefined,
+        endDate: req.body.endDate ? new Date(req.body.endDate) : undefined
+      };
+      
+      const budgetData = insertBudgetSchema.parse(budgetDataWithDates);
       
       const budget = await storage.createBudget(budgetData);
       res.status(201).json(budget);
@@ -225,9 +230,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     try {
-      const updatedBudget = await storage.updateBudget(budgetId, req.body);
+      // Parse dates from strings if they're not already Date objects
+      const updateData = {
+        ...req.body,
+        startDate: req.body.startDate ? new Date(req.body.startDate) : undefined,
+        endDate: req.body.endDate ? new Date(req.body.endDate) : undefined
+      };
+      
+      const updatedBudget = await storage.updateBudget(budgetId, updateData);
       res.json(updatedBudget);
     } catch (error) {
+      if (error instanceof z.ZodError) {
+        return res.status(400).json({ message: "Invalid budget data", errors: error.errors });
+      }
       res.status(500).json({ message: "Failed to update budget" });
     }
   });
