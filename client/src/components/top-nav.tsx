@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Menu, Bell, PlusCircle, Settings, HelpCircle, LogOut, User } from "lucide-react";
+import { Menu, Bell, PlusCircle, Settings, HelpCircle, LogOut, User, Search } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { 
   DropdownMenu, 
@@ -24,46 +24,49 @@ export default function TopNav({ onToggleSidebar }: TopNavProps) {
   };
   
   return (
-    <div className="bg-white shadow-sm border-b border-neutral-200 sticky top-0 z-10">
+    <div className="bg-primary-600 text-white shadow-sm sticky top-0 z-10">
       <div className="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-        <div className="flex items-center md:hidden">
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={onToggleSidebar}
-            className="text-neutral-500 hover:text-neutral-700"
-          >
-            <Menu className="h-5 w-5" />
-          </Button>
+        <div className="flex items-center space-x-2">
+          <div className="flex items-center md:hidden">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={onToggleSidebar}
+              className="text-white hover:bg-primary-500 hover:text-white"
+            >
+              <Menu className="h-5 w-5" />
+            </Button>
+          </div>
+          <h1 className="text-xl font-bold tracking-tight text-white hidden md:block">FinanceTrak</h1>
         </div>
         
-        <div className="md:flex-1 md:flex md:justify-start">
-          <div className="relative max-w-md w-full">
+        <div className="md:flex-1 md:flex md:justify-center">
+          <div className="relative max-w-md w-full mx-4">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <i className="fas fa-search text-neutral-400"></i>
+              <Search className="h-4 w-4 text-white/70" />
             </div>
             <Input 
               type="text" 
-              className="pl-10 pr-4 py-2 border border-neutral-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500" 
+              className="pl-10 pr-4 py-2 bg-primary-500 text-white border-primary-400 border placeholder-white/70 rounded-lg focus:ring-2 focus:ring-primary-300 focus:border-primary-300" 
               placeholder="Search transactions, accounts..." 
             />
           </div>
         </div>
         
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="icon" className="text-neutral-500 hover:text-neutral-700 relative">
+          <Button variant="ghost" size="icon" className="text-white hover:bg-primary-500 relative">
             <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 w-2 h-2 bg-primary-500 rounded-full"></span>
+            <span className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full"></span>
           </Button>
-          <Button variant="ghost" size="icon" className="text-neutral-500 hover:text-neutral-700">
+          <Button variant="ghost" size="icon" className="text-white hover:bg-primary-500">
             <PlusCircle className="h-5 w-5" />
           </Button>
           
           {/* User Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2 hover:bg-neutral-100">
-                <Avatar className="h-8 w-8">
+              <Button variant="ghost" className="flex items-center gap-2 text-white hover:bg-primary-500">
+                <Avatar className="h-8 w-8 border-2 border-white">
                   <AvatarFallback className="bg-primary-100 text-primary-700">
                     {user?.fullName?.substring(0, 2) || user?.username?.substring(0, 2) || "U"}
                   </AvatarFallback>
