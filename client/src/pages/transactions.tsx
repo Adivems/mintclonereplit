@@ -58,8 +58,8 @@ export default function Transactions() {
   const { toast } = useToast();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [accountFilter, setAccountFilter] = useState<string | null>(null);
-  const [categoryFilter, setCategoryFilter] = useState<string | null>(null);
+  const [accountFilter, setAccountFilter] = useState<string | null>("all");
+  const [categoryFilter, setCategoryFilter] = useState<string | null>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   
   // Fetch accounts
@@ -143,11 +143,11 @@ export default function Transactions() {
       );
     }
     
-    if (accountFilter) {
+    if (accountFilter && accountFilter !== "all") {
       match = match && transaction.accountId === parseInt(accountFilter);
     }
     
-    if (categoryFilter) {
+    if (categoryFilter && categoryFilter !== "all") {
       match = match && transaction.categoryId === parseInt(categoryFilter);
     }
     
@@ -437,12 +437,12 @@ export default function Transactions() {
                   />
                 </div>
                 <div className="flex flex-1 gap-4">
-                  <Select value={accountFilter || ""} onValueChange={setAccountFilter}>
+                  <Select value={accountFilter || "all"} onValueChange={setAccountFilter}>
                     <SelectTrigger>
                       <SelectValue placeholder="All Accounts" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Accounts</SelectItem>
+                      <SelectItem value="all">All Accounts</SelectItem>
                       {accounts?.map(account => (
                         <SelectItem key={account.id} value={account.id.toString()}>
                           {account.name}
@@ -451,12 +451,12 @@ export default function Transactions() {
                     </SelectContent>
                   </Select>
                   
-                  <Select value={categoryFilter || ""} onValueChange={setCategoryFilter}>
+                  <Select value={categoryFilter || "all"} onValueChange={setCategoryFilter}>
                     <SelectTrigger>
                       <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Categories</SelectItem>
+                      <SelectItem value="all">All Categories</SelectItem>
                       {categories?.map(category => (
                         <SelectItem key={category.id} value={category.id.toString()}>
                           {category.name}
@@ -467,8 +467,8 @@ export default function Transactions() {
                   
                   <Button variant="outline" onClick={() => {
                     setSearchTerm("");
-                    setAccountFilter(null);
-                    setCategoryFilter(null);
+                    setAccountFilter("all");
+                    setCategoryFilter("all");
                   }}>
                     <Filter className="mr-2 h-4 w-4" /> Reset
                   </Button>
