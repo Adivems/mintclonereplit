@@ -33,7 +33,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         {/* Logo */}
         <div className="px-6 py-4 border-b border-neutral-200">
           <div className="flex items-center">
-            <div className="bg-primary-500 text-white rounded-lg p-2 flex items-center justify-center">
+            <div className="bg-[#2ecc71] text-white rounded-lg p-2 flex items-center justify-center">
               <Wallet className="h-5 w-5" />
             </div>
             <h1 className="ml-3 text-xl font-semibold text-neutral-800">FinanceTrak</h1>
@@ -44,7 +44,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         <nav className="flex-grow p-4 space-y-1 overflow-y-auto">
           <Link href="/">
             <a className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
-              isActive('/') ? 'bg-primary-50 text-primary-700' : 'text-neutral-700 hover:bg-neutral-100'
+              isActive('/') ? 'bg-[#e6f9f0] text-[#2ecc71]' : 'text-neutral-700 hover:bg-neutral-100'
             }`}>
               <i className="fas fa-tachometer-alt w-5 h-5 mr-3"></i>
               <span>Dashboard</span>
@@ -53,7 +53,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           
           <Link href="/transactions">
             <a className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
-              isActive('/transactions') ? 'bg-primary-50 text-primary-700' : 'text-neutral-700 hover:bg-neutral-100'
+              isActive('/transactions') ? 'bg-[#e6f9f0] text-[#2ecc71]' : 'text-neutral-700 hover:bg-neutral-100'
             }`}>
               <i className="fas fa-exchange-alt w-5 h-5 mr-3"></i>
               <span>Transactions</span>
@@ -62,7 +62,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           
           <Link href="/accounts">
             <a className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
-              isActive('/accounts') ? 'bg-primary-50 text-primary-700' : 'text-neutral-700 hover:bg-neutral-100'
+              isActive('/accounts') ? 'bg-[#e6f9f0] text-[#2ecc71]' : 'text-neutral-700 hover:bg-neutral-100'
             }`}>
               <i className="fas fa-wallet w-5 h-5 mr-3"></i>
               <span>Accounts</span>
@@ -71,7 +71,7 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
           
           <Link href="/budgets">
             <a className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
-              isActive('/budgets') ? 'bg-primary-50 text-primary-700' : 'text-neutral-700 hover:bg-neutral-100'
+              isActive('/budgets') ? 'bg-[#e6f9f0] text-[#2ecc71]' : 'text-neutral-700 hover:bg-neutral-100'
             }`}>
               <i className="fas fa-chart-pie w-5 h-5 mr-3"></i>
               <span>Budgets</span>
