@@ -46,9 +46,9 @@ export default function FinancialSummary({ accounts, transactions }: FinancialSu
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      <Card>
-        <CardContent className="p-5">
-          <div className="flex justify-between items-start">
+      <Card className="h-full">
+        <CardContent className="p-5 h-full">
+          <div className="flex justify-between items-start h-full">
             <div>
               <p className="text-sm font-medium text-neutral-500">Net Worth</p>
               <p className="text-2xl font-bold mt-1 text-neutral-800">${netWorth.toFixed(2)}</p>
@@ -59,16 +59,16 @@ export default function FinancialSummary({ accounts, transactions }: FinancialSu
                 <span className="text-neutral-500 ml-2">from last month</span>
               </div>
             </div>
-            <div className="p-2 bg-blue-50 text-secondary-500 rounded-lg">
+            <div className="p-2 bg-blue-50 text-[#2ecc71] rounded-lg">
               <DollarSign className="h-5 w-5" />
             </div>
           </div>
         </CardContent>
       </Card>
       
-      <Card>
-        <CardContent className="p-5">
-          <div className="flex justify-between items-start">
+      <Card className="h-full">
+        <CardContent className="p-5 h-full">
+          <div className="flex justify-between items-start h-full">
             <div>
               <p className="text-sm font-medium text-neutral-500">This Month's Income</p>
               <p className="text-2xl font-bold mt-1 text-neutral-800">${monthlyIncome.toFixed(2)}</p>
@@ -79,16 +79,16 @@ export default function FinancialSummary({ accounts, transactions }: FinancialSu
                 <span className="text-neutral-500 ml-2">from last month</span>
               </div>
             </div>
-            <div className="p-2 bg-green-50 text-primary-500 rounded-lg">
+            <div className="p-2 bg-green-50 text-[#2ecc71] rounded-lg">
               <TrendingUp className="h-5 w-5" />
             </div>
           </div>
         </CardContent>
       </Card>
       
-      <Card>
-        <CardContent className="p-5">
-          <div className="flex justify-between items-start">
+      <Card className="h-full">
+        <CardContent className="p-5 h-full">
+          <div className="flex justify-between items-start h-full">
             <div>
               <p className="text-sm font-medium text-neutral-500">This Month's Spending</p>
               <p className="text-2xl font-bold mt-1 text-neutral-800">${monthlySpending.toFixed(2)}</p>
