@@ -118,10 +118,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (!req.isAuthenticated()) return res.status(401).json({ message: "Unauthorized" });
     
     try {
-      const transactionData = insertTransactionSchema.parse({
+      // Parse date from string if it's not already a Date object
+      const transactionDataWithDate = {
         ...req.body,
         userId: req.user!.id,
-      });
+        date: req.body.date ? new Date(req.body.date) : undefined
+      };
+      
+      const transactionData = insertTransactionSchema.parse(transactionDataWithDate);
       
       // Validate that the account belongs to the user
       const account = await storage.getAccount(transactionData.accountId);
@@ -154,7 +158,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
     
     try {
-      const updatedTransaction = await storage.updateTransaction(transactionId, req.body);
+      // Parse date from string if it's not already a Date object
+      const updateData = {
+        ...req.body,
+        date: req.body.date ? new Date(req.body.date) : undefined
+      };
+      
+      const updatedTransaction = await storage.updateTransaction(transactionId, updateData);
       res.json(updatedTransaction);
     } catch (error) {
       res.status(500).json({ message: "Failed to update transaction" });
