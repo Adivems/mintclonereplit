@@ -71,7 +71,18 @@ export function setupAuth(app: Express) {
 
   app.post("/api/register", async (req, res, next) => {
     try {
-      const userData = registerSchema.parse(req.body);
+      console.log("Registration request received:", req.body);
+      
+      // Handle the case where confirmPassword is already removed on the client
+      let userData;
+      if (req.body.confirmPassword) {
+        userData = registerSchema.parse(req.body);
+      } else {
+        userData = { ...req.body, confirmPassword: req.body.password };
+        userData = registerSchema.parse(userData);
+      }
+      
+      console.log("Parsed user data:", { ...userData, password: "[FILTERED]" });
       
       const existingUser = await storage.getUserByUsername(userData.username);
       if (existingUser) {
@@ -86,14 +97,20 @@ export function setupAuth(app: Express) {
         password: await hashPassword(userData.password)
       });
 
+      console.log("User created successfully:", { id: user.id, username: user.username });
+
       // Remove password from the response
       const { password, ...safeUser } = user;
 
       req.login(user, (err) => {
-        if (err) return next(err);
+        if (err) {
+          console.error("Login error after registration:", err);
+          return next(err);
+        }
         res.status(201).json(safeUser);
       });
     } catch (error) {
+      console.error("Registration error:", error);
       if (error instanceof z.ZodError) {
         return res.status(400).json({ message: "Invalid registration data", errors: error.errors });
       }

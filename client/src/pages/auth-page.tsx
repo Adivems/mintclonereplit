@@ -34,7 +34,14 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState<string>("login");
   const [location, navigate] = useLocation();
-  const { loginMutation, registerMutation } = useAuth();
+  const { loginMutation, registerMutation, user } = useAuth();
+  
+  // Redirect if user is already logged in
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
   
   // Login form
   const loginForm = useForm<LoginFormValues>({
@@ -64,6 +71,7 @@ export default function AuthPage() {
   
   // Handle register form submission
   const onRegisterSubmit = (values: RegisterFormValues) => {
+    console.log("Register form submitted:", values);
     const { confirmPassword, ...userData } = values;
     registerMutation.mutate(userData);
   };
@@ -81,8 +89,8 @@ export default function AuthPage() {
             <p className="text-neutral-500 mt-2">Your personal finance management solution</p>
           </div>
           
-          <Tabs defaultValue="login" value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid grid-cols-2 mb-6">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid grid-cols-2 mb-6 w-full">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="register">Register</TabsTrigger>
             </TabsList>

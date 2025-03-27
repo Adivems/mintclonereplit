@@ -58,7 +58,13 @@ function App() {
             <Route path="/budgets" component={Budgets} />
           </>
         ) : (
-          <Route path="/auth" component={AuthPage} />
+          <>
+            <Route path="/auth" component={AuthPage} />
+            <Route path="/" component={() => {
+              setLocation("/auth");
+              return null;
+            }} />
+          </>
         )}
         <Route component={NotFound} />
       </Switch>
