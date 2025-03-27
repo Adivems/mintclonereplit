@@ -1,12 +1,28 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Menu, Bell, PlusCircle } from "lucide-react";
+import { Menu, Bell, PlusCircle, Settings, HelpCircle, LogOut, User } from "lucide-react";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { 
+  DropdownMenu, 
+  DropdownMenuContent, 
+  DropdownMenuItem, 
+  DropdownMenuLabel, 
+  DropdownMenuSeparator, 
+  DropdownMenuTrigger 
+} from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/hooks/use-auth";
 
 interface TopNavProps {
   onToggleSidebar: () => void;
 }
 
 export default function TopNav({ onToggleSidebar }: TopNavProps) {
+  const { user, logoutMutation } = useAuth();
+  
+  const handleLogout = () => {
+    logoutMutation.mutate();
+  };
+  
   return (
     <div className="bg-white shadow-sm border-b border-neutral-200 sticky top-0 z-10">
       <div className="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
@@ -42,6 +58,46 @@ export default function TopNav({ onToggleSidebar }: TopNavProps) {
           <Button variant="ghost" size="icon" className="text-neutral-500 hover:text-neutral-700">
             <PlusCircle className="h-5 w-5" />
           </Button>
+          
+          {/* User Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="flex items-center gap-2 hover:bg-neutral-100">
+                <Avatar className="h-8 w-8">
+                  <AvatarFallback className="bg-primary-100 text-primary-700">
+                    {user?.fullName?.substring(0, 2) || user?.username?.substring(0, 2) || "U"}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="hidden md:inline font-medium text-sm">{user?.fullName || user?.username}</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>
+                <div className="flex flex-col">
+                  <span>{user?.fullName}</span>
+                  <span className="text-xs text-muted-foreground">{user?.email || user?.username}</span>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <User className="mr-2 h-4 w-4" />
+                <span>Account</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Settings className="mr-2 h-4 w-4" />
+                <span>Settings</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <HelpCircle className="mr-2 h-4 w-4" />
+                <span>Help</span>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                <LogOut className="mr-2 h-4 w-4" />
+                <span>Sign out</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </div>
