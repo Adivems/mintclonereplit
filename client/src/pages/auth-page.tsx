@@ -143,7 +143,7 @@ export default function AuthPage() {
                     <CardFooter>
                       <Button 
                         type="submit" 
-                        className="w-full bg-primary-500 hover:bg-primary-600"
+                        className="w-full bg-primary text-white hover:bg-primary/90"
                         disabled={loginMutation.isPending}
                       >
                         {loginMutation.isPending && (
@@ -159,7 +159,7 @@ export default function AuthPage() {
                     Don't have an account?{' '}
                     <Button 
                       variant="link" 
-                      className="p-0 h-auto text-primary-500"
+                      className="p-0 h-auto text-primary"
                       onClick={() => setActiveTab('register')}
                     >
                       Create one now
@@ -267,7 +267,7 @@ export default function AuthPage() {
                     <CardFooter>
                       <Button 
                         type="submit" 
-                        className="w-full bg-primary-500 hover:bg-primary-600"
+                        className="w-full bg-primary text-white hover:bg-primary/90"
                         disabled={registerMutation.isPending}
                       >
                         {registerMutation.isPending && (
@@ -283,7 +283,7 @@ export default function AuthPage() {
                     Already have an account?{' '}
                     <Button 
                       variant="link" 
-                      className="p-0 h-auto text-primary-500"
+                      className="p-0 h-auto text-primary"
                       onClick={() => setActiveTab('login')}
                     >
                       Login instead
@@ -297,7 +297,7 @@ export default function AuthPage() {
       </div>
       
       {/* Right side - Hero section */}
-      <div className="hidden md:flex md:w-1/2 bg-primary-500 flex-col items-center justify-center p-12 text-white">
+      <div className="hidden md:flex md:w-1/2 bg-primary flex-col items-center justify-center p-12 text-white">
         <div className="max-w-md">
           <h2 className="text-3xl font-bold mb-6">Take Control of Your Finances</h2>
           <div className="space-y-8">
