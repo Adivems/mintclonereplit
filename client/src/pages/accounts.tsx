@@ -116,7 +116,7 @@ export default function Accounts() {
   if (isLoadingAccounts) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-10 w-10 animate-spin text-primary-500" />
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
       </div>
     );
   }
@@ -133,7 +133,7 @@ export default function Accounts() {
             <h1 className="text-2xl font-bold text-neutral-800">Accounts</h1>
             <Dialog open={isAddAccountOpen} onOpenChange={setIsAddAccountOpen}>
               <DialogTrigger asChild>
-                <Button className="mt-4 md:mt-0 bg-primary-500 hover:bg-primary-600">
+                <Button className="mt-4 md:mt-0 bg-primary text-white hover:bg-primary/90">
                   <Plus className="mr-2 h-4 w-4" /> Add Account
                 </Button>
               </DialogTrigger>
@@ -255,7 +255,11 @@ export default function Accounts() {
                       />
                     )}
                     <DialogFooter>
-                      <Button type="submit" disabled={addAccountMutation.isPending}>
+                      <Button 
+                        type="submit" 
+                        className="bg-primary text-white hover:bg-primary/90"
+                        disabled={addAccountMutation.isPending}
+                      >
                         {addAccountMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Add Account
                       </Button>
@@ -405,7 +409,7 @@ function AccountCard({ account }: { account: Account }) {
       case 'checking':
         return 'bg-blue-50 text-secondary-500';
       case 'savings':
-        return 'bg-green-50 text-primary-500';
+        return 'bg-green-50 text-primary';
       case 'credit_card':
         return 'bg-purple-50 text-accent-500';
       case 'investment':
@@ -473,7 +477,7 @@ function AccountCard({ account }: { account: Account }) {
         )}
         
         <div className="flex justify-between mt-4">
-          <Button variant="link" className="px-0 text-secondary-500">
+          <Button variant="link" className="px-0 text-primary">
             View Transactions
           </Button>
           <Button variant="ghost" size="icon">
