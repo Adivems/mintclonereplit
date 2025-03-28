@@ -23,8 +23,7 @@ export default function TopNav({ onToggleSidebar }: TopNavProps) {
   
   const handleLogout = () => {
     logoutMutation.mutate();
-    // This ensures the user is immediately redirected to the auth page
-    navigate("/auth");
+    // The navigation is handled by logoutMutation.onSuccess
   };
   
   return (

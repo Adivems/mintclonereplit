@@ -39,7 +39,8 @@ export default function AuthPage() {
   // Redirect if user is already logged in - single check on mount is sufficient
   useEffect(() => {
     if (user) {
-      navigate("/");
+      // Use replace to avoid adding to history stack
+      navigate("/", { replace: true });
     }
   }, [user, navigate]);
   

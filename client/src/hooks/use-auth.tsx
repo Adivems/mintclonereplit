@@ -41,12 +41,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return await res.json();
     },
     onSuccess: (user: SelectUser) => {
+      // Update cache with the user data
       queryClient.setQueryData(["/api/user"], user);
+      
       toast({
         title: "Welcome back!",
         description: `Logged in as ${user.username}`,
       });
-      navigate("/");
+      
+      // Force navigation to home page
+      setTimeout(() => {
+        navigate("/", { replace: true });
+      }, 100);
     },
     onError: (error: Error) => {
       toast({
@@ -63,12 +69,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return await res.json();
     },
     onSuccess: (user: SelectUser) => {
+      // Update cache with the user data
       queryClient.setQueryData(["/api/user"], user);
+      
       toast({
         title: "Account created!",
         description: "Your account has been created successfully.",
       });
-      navigate("/");
+      
+      // Force navigation to home page
+      setTimeout(() => {
+        navigate("/", { replace: true });
+      }, 100);
     },
     onError: (error: Error) => {
       toast({
@@ -84,13 +96,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await apiRequest("POST", "/api/logout");
     },
     onSuccess: () => {
+      // Clear all current query data, especially the user data
+      queryClient.clear();
+      // Then update the specific user query to null
       queryClient.setQueryData(["/api/user"], null);
-      queryClient.invalidateQueries();
+      
       toast({
         title: "Logged out",
         description: "You have been logged out successfully.",
       });
-      navigate("/auth");
+      
+      // Force navigation to auth page
+      setTimeout(() => {
+        navigate("/auth", { replace: true });
+      }, 100);
     },
     onError: (error: Error) => {
       toast({
