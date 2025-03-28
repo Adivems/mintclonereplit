@@ -1,9 +1,6 @@
 
 import { createContext, ReactNode, useContext } from "react";
-import {
-  useQuery,
-  useMutation,
-} from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { insertUserSchema, User as SelectUser, InsertUser } from "@shared/schema";
 import { getQueryFn, apiRequest, queryClient } from "../lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -11,28 +8,31 @@ import { useLocation } from "wouter";
 
 type LoginData = Pick<InsertUser, "username" | "password">;
 
-type AuthContextType = {
+export function useAuth() {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
+  return context;
+}
+
+const AuthContext = createContext<{
   user: SelectUser | null;
   isLoading: boolean;
   error: Error | null;
   loginMutation: any;
   logoutMutation: any;
   registerMutation: any;
-};
-
-const AuthContext = createContext<AuthContextType | null>(null);
+} | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const [_, navigate] = useLocation();
 
-  const {
-    data: user,
-    error,
-    isLoading,
-  } = useQuery<SelectUser | null, Error>({
+  const { data: user, isLoading, error } = useQuery({
     queryKey: ["/api/user"],
-    queryFn: getQueryFn({ on401: "returnNull" }),
+    queryFn: getQueryFn("/api/user"),
+    retry: false,
   });
 
   const loginMutation = useMutation({
@@ -44,11 +44,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       return res.json();
     },
-    onSuccess: (user: SelectUser) => {
-      queryClient.setQueryData(["/api/user"], user);
+    onSuccess: (data: SelectUser) => {
+      queryClient.setQueryData(["/api/user"], data);
       toast({
         title: "Welcome back!",
-        description: `Logged in as ${user.username}`,
+        description: `Logged in as ${data.username}`,
       });
       navigate("/");
     },
@@ -70,8 +70,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
       return res.json();
     },
-    onSuccess: (user: SelectUser) => {
-      queryClient.setQueryData(["/api/user"], user);
+    onSuccess: (data: SelectUser) => {
+      queryClient.setQueryData(["/api/user"], data);
       toast({
         title: "Account created!",
         description: "Your account has been created successfully.",
@@ -115,9 +115,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return (
     <AuthContext.Provider
       value={{
-        user,
-        error,
+        user: user ?? null,
         isLoading,
+        error,
         loginMutation,
         logoutMutation,
         registerMutation,
@@ -126,12 +126,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
 }
