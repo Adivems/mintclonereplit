@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Menu, Bell, PlusCircle, Settings, HelpCircle, LogOut, User, Search } from "lucide-react";
+import { Menu, Settings, HelpCircle, LogOut, User, Search } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { 
   DropdownMenu, 
@@ -11,6 +11,7 @@ import {
   DropdownMenuTrigger 
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/use-auth";
+import { useLocation } from "wouter";
 
 interface TopNavProps {
   onToggleSidebar: () => void;
@@ -18,14 +19,17 @@ interface TopNavProps {
 
 export default function TopNav({ onToggleSidebar }: TopNavProps) {
   const { user, logoutMutation } = useAuth();
+  const [_, navigate] = useLocation();
   
   const handleLogout = () => {
     logoutMutation.mutate();
+    // This ensures the user is immediately redirected to the auth page
+    navigate("/auth");
   };
   
   return (
     <div className="bg-[#2ecc71] text-white shadow-sm sticky top-0 z-10">
-      <div className="px-4 sm:px-6 lg:px-8 py-2 flex items-center justify-between">
+      <div className="px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
         <div className="flex items-center md:w-48">
           <div className="flex items-center md:hidden mr-2">
             <Button 
@@ -37,34 +41,31 @@ export default function TopNav({ onToggleSidebar }: TopNavProps) {
               <Menu className="h-5 w-5" />
             </Button>
           </div>
-          {/* Removed duplicate FinanceTrak text */}
+          {/* FinanceTrak logo only shown on sidebar */}
         </div>
         
         <div className="flex-1 flex justify-center max-w-md mx-auto">
           <div className="relative w-full">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-[#27ae60]" />
+            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <Search className="h-4 w-4 text-[#2ecc71]" />
             </div>
             <Input 
               type="text" 
-              className="pl-10 pr-4 py-2 h-8 bg-[#e6f9f0] text-gray-800 border-none shadow-inner placeholder-gray-500 rounded-md focus:ring-0 w-full" 
+              className="pl-10 pr-4 py-3 h-10 bg-white text-gray-800 border-2 border-[#e6f9f0] shadow-sm placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-[#2ecc71] focus:border-[#2ecc71] w-full" 
               placeholder="Search transactions..." 
             />
           </div>
         </div>
         
         <div className="flex items-center md:w-48 justify-end">
-          <Button variant="ghost" size="icon" className="text-white hover:bg-[#27ae60] p-1 hidden sm:flex">
-            <Bell className="h-5 w-5" />
-          </Button>
-          {/* Removed the plus button */}
+          {/* Removed notification icon as requested */}
           
           {/* User Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2 py-1 px-2 rounded-md ml-1 text-white">
-                <Avatar className="h-7 w-7 border border-white">
-                  <AvatarFallback className="bg-[#27ae60] text-white text-xs">
+              <Button variant="ghost" className="flex items-center gap-2 py-1.5 px-3 rounded-lg ml-1 text-white hover:bg-[#27ae60]">
+                <Avatar className="h-8 w-8 border border-white">
+                  <AvatarFallback className="bg-[#27ae60] text-white text-sm">
                     {user?.fullName?.substring(0, 2) || user?.username?.substring(0, 2) || "Ad"}
                   </AvatarFallback>
                 </Avatar>

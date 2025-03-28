@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -23,6 +23,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Transaction, Account, Category, insertTransactionSchema } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 // Define the transaction form schema
 const transactionFormSchema = insertTransactionSchema.extend({
@@ -56,11 +57,24 @@ type TransactionFormValues = z.infer<typeof transactionFormSchema>;
 export default function Transactions() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const [location] = useLocation();
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [accountFilter, setAccountFilter] = useState<string | null>("all");
   const [categoryFilter, setCategoryFilter] = useState<string | null>("all");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  
+  // Parse URL parameters and set filters on mount
+  useEffect(() => {
+    // Get the URL search parameters
+    const searchParams = new URLSearchParams(window.location.search);
+    const accountIdParam = searchParams.get('accountId');
+    
+    // If accountId is in the URL, set the account filter
+    if (accountIdParam) {
+      setAccountFilter(accountIdParam);
+    }
+  }, [location]);
   
   // Fetch accounts
   const { data: accounts, isLoading: isLoadingAccounts } = useQuery<Account[]>({

@@ -18,6 +18,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Account } from "@shared/schema";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
 
 const accountFormSchema = z.object({
   name: z.string().min(1, "Account name is required"),
@@ -25,9 +26,9 @@ const accountFormSchema = z.object({
   institution: z.string().min(1, "Institution name is required"),
   accountNumber: z.string().min(4, "Account number is required"),
   currentBalance: z.string().transform(val => parseFloat(val)),
-  availableBalance: z.string().optional().transform(val => val === "" ? undefined : parseFloat(val)),
-  limit: z.string().optional().transform(val => val === "" ? undefined : parseFloat(val)),
-  interestRate: z.string().optional().transform(val => val === "" ? undefined : parseFloat(val)),
+  availableBalance: z.string().optional().transform(val => val ? parseFloat(val) : undefined),
+  limit: z.string().optional().transform(val => val ? parseFloat(val) : undefined),
+  interestRate: z.string().optional().transform(val => val ? parseFloat(val) : undefined),
 });
 
 type AccountFormValues = z.infer<typeof accountFormSchema>;
@@ -387,6 +388,8 @@ export default function Accounts() {
 }
 
 function AccountCard({ account }: { account: Account }) {
+  // Use wouter's navigation
+  const [_, navigate] = useLocation();
   // Get icon based on account type
   const getAccountIcon = () => {
     switch (account.type) {
@@ -477,10 +480,18 @@ function AccountCard({ account }: { account: Account }) {
         )}
         
         <div className="flex justify-between mt-4">
-          <Button variant="link" className="px-0 text-primary">
+          <Button 
+            variant="link" 
+            className="px-0 text-[#2ecc71] hover:text-[#27ae60]"
+            onClick={() => navigate(`/transactions?accountId=${account.id}`)}
+          >
             View Transactions
           </Button>
-          <Button variant="ghost" size="icon">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => navigate(`/transactions?accountId=${account.id}`)}
+          >
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
