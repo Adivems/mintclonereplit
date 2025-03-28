@@ -1,27 +1,28 @@
+
+import { ReactNode } from "react";
+import { Redirect } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
-import { Redirect, Route } from "wouter";
 
-export function ProtectedRoute({
-  path,
-  component: Component,
-}: {
-  path: string;
-  component: () => React.JSX.Element;
-}) {
+interface ProtectedRouteProps {
+  component: React.ComponentType;
+  path?: string;
+}
+
+export function ProtectedRoute({ component: Component, ...props }: ProtectedRouteProps) {
   const { user, isLoading } = useAuth();
 
-  return (
-    <Route path={path}>
-      {isLoading ? (
-        <div className="flex items-center justify-center min-h-screen">
-          <Loader2 className="h-8 w-8 animate-spin text-border" />
-        </div>
-      ) : !user ? (
-        <Redirect to="/auth" />
-      ) : (
-        <Component />
-      )}
-    </Route>
-  );
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Redirect to="/auth" />;
+  }
+
+  return <Component {...props} />;
 }

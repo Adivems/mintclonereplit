@@ -63,15 +63,14 @@ export default function AuthPage() {
   });
   
   // Handle login form submission
-  const onLoginSubmit = (values: LoginFormValues) => {
-    loginMutation.mutate(values);
+  const onLoginSubmit = async (values: LoginFormValues) => {
+    await loginMutation.mutateAsync(values);
   };
   
   // Handle register form submission
-  const onRegisterSubmit = (values: RegisterFormValues) => {
-    console.log("Register form submitted:", values);
+  const onRegisterSubmit = async (values: RegisterFormValues) => {
     const { confirmPassword, ...userData } = values;
-    registerMutation.mutate(userData);
+    await registerMutation.mutateAsync(userData);
   };
 
   return (

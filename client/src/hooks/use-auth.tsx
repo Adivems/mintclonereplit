@@ -24,7 +24,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const [_, navigate] = useLocation();
-  
+
   const {
     data: user,
     error,
@@ -42,12 +42,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (user: SelectUser) => {
       // Set user data in cache
       queryClient.setQueryData(["/api/user"], user);
-      
+
       toast({
         title: "Welcome back!",
         description: `Logged in as ${user.username}`,
       });
-      
+
       // Navigate to home page
       navigate("/");
     },
@@ -68,12 +68,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     onSuccess: (user: SelectUser) => {
       // Set user data in cache
       queryClient.setQueryData(["/api/user"], user);
-      
+
       toast({
         title: "Account created!",
         description: "Your account has been created successfully.",
       });
-      
+
       // Navigate to home page
       navigate("/");
     },
@@ -94,12 +94,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Clear cache and set user to null
       queryClient.clear();
       queryClient.setQueryData(["/api/user"], null);
-      
+
       toast({
-        title: "Logged out",
-        description: "You have been logged out successfully.",
+        title: "Goodbye!",
+        description: "Logged out successfully",
       });
-      
+
       // Navigate to auth page
       navigate("/auth");
     },
