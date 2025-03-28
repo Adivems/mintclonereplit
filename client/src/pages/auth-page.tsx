@@ -36,7 +36,7 @@ export default function AuthPage() {
   const [location, navigate] = useLocation();
   const { loginMutation, registerMutation, user } = useAuth();
   
-  // Redirect if user is already logged in
+  // Redirect if user is already logged in - single check on mount is sufficient
   useEffect(() => {
     if (user) {
       navigate("/");

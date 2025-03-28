@@ -47,10 +47,10 @@ export default function Accounts() {
       type: "checking",
       institution: "",
       accountNumber: "",
-      currentBalance: "0.00",
-      availableBalance: "",
-      limit: "",
-      interestRate: ""
+      currentBalance: 0,
+      availableBalance: 0,
+      limit: 0,
+      interestRate: 0
     }
   });
   

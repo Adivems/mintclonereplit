@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { Switch, Route, useLocation } from "wouter";
+import { Switch, Route } from "wouter";
 import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
@@ -7,39 +6,15 @@ import Transactions from "@/pages/transactions";
 import Accounts from "@/pages/accounts";
 import Budgets from "@/pages/budgets";
 import AuthPage from "@/pages/auth-page";
-import { AuthProvider } from "@/hooks/use-auth";
-import {
-  useQuery,
-} from "@tanstack/react-query";
+import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
-import { getQueryFn } from "./lib/queryClient";
-import { User } from "@shared/schema";
+import { ProtectedRoute } from "@/lib/protected-route";
 
-function App() {
-  const [location, setLocation] = useLocation();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
-  
-  // Check authentication status
-  const { data: user, isLoading } = useQuery<User | null>({
-    queryKey: ["/api/user"],
-    queryFn: getQueryFn({ on401: "returnNull" }),
-  });
+// This component handles routing based on auth state
+function Router() {
+  const { user, isLoading } = useAuth();
 
-  useEffect(() => {
-    if (!isLoading) {
-      setIsAuthenticated(!!user);
-      
-      // Redirect based on auth status
-      if (user && location === "/auth") {
-        setLocation("/");
-      } else if (!user && location !== "/auth" && isAuthenticated === false) {
-        setLocation("/auth");
-      }
-    }
-  }, [user, isLoading, location, setLocation, isAuthenticated]);
-
-  // Show loading indicator while checking auth
-  if (isLoading || isAuthenticated === null) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
@@ -48,26 +23,21 @@ function App() {
   }
 
   return (
+    <Switch>
+      <ProtectedRoute path="/" component={Dashboard} />
+      <ProtectedRoute path="/transactions" component={Transactions} />
+      <ProtectedRoute path="/accounts" component={Accounts} />
+      <ProtectedRoute path="/budgets" component={Budgets} />
+      <Route path="/auth" component={AuthPage} />
+      <Route component={NotFound} />
+    </Switch>
+  );
+}
+
+function App() {
+  return (
     <AuthProvider>
-      <Switch>
-        {isAuthenticated ? (
-          <>
-            <Route path="/" component={Dashboard} />
-            <Route path="/transactions" component={Transactions} />
-            <Route path="/accounts" component={Accounts} />
-            <Route path="/budgets" component={Budgets} />
-          </>
-        ) : (
-          <>
-            <Route path="/auth" component={AuthPage} />
-            <Route path="/" component={() => {
-              setLocation("/auth");
-              return null;
-            }} />
-          </>
-        )}
-        <Route component={NotFound} />
-      </Switch>
+      <Router />
       <Toaster />
     </AuthProvider>
   );
