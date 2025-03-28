@@ -32,7 +32,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   } = useQuery<SelectUser | null, Error>({
     queryKey: ["/api/user"],
     queryFn: getQueryFn({ on401: "returnNull" }),
-    staleTime: 1000 * 60, // Cache for 1 minute to avoid multiple fetches
   });
 
   const loginMutation = useMutation({
@@ -41,7 +40,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return await res.json();
     },
     onSuccess: (user: SelectUser) => {
-      // Update cache with the user data
+      // Set user data in cache
       queryClient.setQueryData(["/api/user"], user);
       
       toast({
@@ -49,10 +48,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: `Logged in as ${user.username}`,
       });
       
-      // Force navigation to home page
-      setTimeout(() => {
-        navigate("/", { replace: true });
-      }, 100);
+      // Navigate to home page
+      navigate("/");
     },
     onError: (error: Error) => {
       toast({
@@ -69,7 +66,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return await res.json();
     },
     onSuccess: (user: SelectUser) => {
-      // Update cache with the user data
+      // Set user data in cache
       queryClient.setQueryData(["/api/user"], user);
       
       toast({
@@ -77,10 +74,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: "Your account has been created successfully.",
       });
       
-      // Force navigation to home page
-      setTimeout(() => {
-        navigate("/", { replace: true });
-      }, 100);
+      // Navigate to home page
+      navigate("/");
     },
     onError: (error: Error) => {
       toast({
@@ -96,9 +91,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       await apiRequest("POST", "/api/logout");
     },
     onSuccess: () => {
-      // Clear all current query data, especially the user data
+      // Clear cache and set user to null
       queryClient.clear();
-      // Then update the specific user query to null
       queryClient.setQueryData(["/api/user"], null);
       
       toast({
@@ -106,10 +100,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         description: "You have been logged out successfully.",
       });
       
-      // Force navigation to auth page
-      setTimeout(() => {
-        navigate("/auth", { replace: true });
-      }, 100);
+      // Navigate to auth page
+      navigate("/auth");
     },
     onError: (error: Error) => {
       toast({

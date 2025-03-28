@@ -10,18 +10,8 @@ import { AuthProvider, useAuth } from "@/hooks/use-auth";
 import { Loader2 } from "lucide-react";
 import { ProtectedRoute } from "@/lib/protected-route";
 
-// This component handles routing based on auth state
+// Simple router component - auth protection is handled by ProtectedRoute
 function Router() {
-  const { user, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      </div>
-    );
-  }
-
   return (
     <Switch>
       <ProtectedRoute path="/" component={Dashboard} />

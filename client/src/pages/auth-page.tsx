@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { useLocation } from "wouter";
+import { useState } from "react";
+import { useLocation, Redirect } from "wouter";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,13 +36,10 @@ export default function AuthPage() {
   const [location, navigate] = useLocation();
   const { loginMutation, registerMutation, user } = useAuth();
   
-  // Redirect if user is already logged in - single check on mount is sufficient
-  useEffect(() => {
-    if (user) {
-      // Use replace to avoid adding to history stack
-      navigate("/", { replace: true });
-    }
-  }, [user, navigate]);
+  // Add back redirection directly here for better flow
+  if (user) {
+    return <Redirect to="/" />;
+  }
   
   // Login form
   const loginForm = useForm<LoginFormValues>({
