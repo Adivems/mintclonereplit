@@ -57,14 +57,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return response.json();
       });
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       console.log("Login successful!");
-      queryClient.invalidateQueries({ queryKey: ["/api/user"] });
+      await queryClient.invalidateQueries({ queryKey: ["/api/user"] });
       toast({
         title: "Success",
         description: "Logged in successfully",
       });
-      navigate("/");
+      navigate("/", { replace: true });
     },
     onError: (error) => {
       console.error("Login error:", error);
