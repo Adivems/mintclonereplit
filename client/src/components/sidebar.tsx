@@ -42,51 +42,58 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         
         {/* Navigation Menu */}
         <nav className="flex-grow p-4 space-y-1 overflow-y-auto">
+          {/* Use div wrapper instead of <a> to avoid nesting <a> tags */}
           <Link href="/">
-            <a className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+            <div className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg cursor-pointer ${
               isActive('/') ? 'bg-[#e6f9f0] text-[#2ecc71]' : 'text-neutral-700 hover:bg-neutral-100'
             }`}>
               <i className="fas fa-tachometer-alt w-5 h-5 mr-3"></i>
               <span>Dashboard</span>
-            </a>
+            </div>
           </Link>
           
           <Link href="/transactions">
-            <a className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+            <div className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg cursor-pointer ${
               isActive('/transactions') ? 'bg-[#e6f9f0] text-[#2ecc71]' : 'text-neutral-700 hover:bg-neutral-100'
             }`}>
               <i className="fas fa-exchange-alt w-5 h-5 mr-3"></i>
               <span>Transactions</span>
-            </a>
+            </div>
           </Link>
           
           <Link href="/accounts">
-            <a className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+            <div className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg cursor-pointer ${
               isActive('/accounts') ? 'bg-[#e6f9f0] text-[#2ecc71]' : 'text-neutral-700 hover:bg-neutral-100'
             }`}>
               <i className="fas fa-wallet w-5 h-5 mr-3"></i>
               <span>Accounts</span>
-            </a>
+            </div>
           </Link>
           
           <Link href="/budgets">
-            <a className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg ${
+            <div className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg cursor-pointer ${
               isActive('/budgets') ? 'bg-[#e6f9f0] text-[#2ecc71]' : 'text-neutral-700 hover:bg-neutral-100'
             }`}>
               <i className="fas fa-chart-pie w-5 h-5 mr-3"></i>
               <span>Budgets</span>
-            </a>
+            </div>
           </Link>
           
           <div className="border-t border-neutral-200 my-2 pt-2">
-            <a href="#" className="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg text-neutral-700 hover:bg-neutral-100">
+            <button 
+              onClick={() => {}} 
+              className="w-full flex items-center px-4 py-2.5 text-sm font-medium rounded-lg text-neutral-700 hover:bg-neutral-100"
+            >
               <i className="fas fa-cog w-5 h-5 mr-3"></i>
               <span>Settings</span>
-            </a>
-            <a href="#" className="flex items-center px-4 py-2.5 text-sm font-medium rounded-lg text-neutral-700 hover:bg-neutral-100">
-              <i className="fas fa-question-circle w-5 h-5 mr-3"></i>
-              <span>Help</span>
-            </a>
+            </button>
+            <button 
+              onClick={handleLogout} 
+              className="w-full flex items-center px-4 py-2.5 text-sm font-medium rounded-lg text-neutral-700 hover:bg-neutral-100"
+            >
+              <i className="fas fa-sign-out-alt w-5 h-5 mr-3"></i>
+              <span>Logout</span>
+            </button>
           </div>
         </nav>
         
