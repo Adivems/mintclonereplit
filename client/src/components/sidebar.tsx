@@ -1,4 +1,4 @@
-import { useLocation, Link } from "wouter";
+import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Wallet } from "lucide-react";
 
@@ -8,7 +8,7 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
-  const [location] = useLocation();
+  const [location, navigate] = useLocation();
   const { user, logoutMutation } = useAuth();
   
   const isActive = (path: string) => {
@@ -42,42 +42,46 @@ export default function Sidebar({ isOpen = true, onClose }: SidebarProps) {
         
         {/* Navigation Menu */}
         <nav className="flex-grow p-4 space-y-1 overflow-y-auto">
-          {/* Use div wrapper instead of <a> to avoid nesting <a> tags */}
-          <Link href="/">
-            <div className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg cursor-pointer ${
+          {/* Modified to use div + onClick for navigation instead of Link+child to avoid nesting issues */}
+          <div 
+            onClick={() => navigate("/")}
+            className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg cursor-pointer ${
               isActive('/') ? 'bg-[#e6f9f0] text-[#2ecc71]' : 'text-neutral-700 hover:bg-neutral-100'
-            }`}>
-              <i className="fas fa-tachometer-alt w-5 h-5 mr-3"></i>
-              <span>Dashboard</span>
-            </div>
-          </Link>
+            }`}
+          >
+            <i className="fas fa-tachometer-alt w-5 h-5 mr-3"></i>
+            <span>Dashboard</span>
+          </div>
           
-          <Link href="/transactions">
-            <div className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg cursor-pointer ${
+          <div 
+            onClick={() => navigate("/transactions")}
+            className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg cursor-pointer ${
               isActive('/transactions') ? 'bg-[#e6f9f0] text-[#2ecc71]' : 'text-neutral-700 hover:bg-neutral-100'
-            }`}>
-              <i className="fas fa-exchange-alt w-5 h-5 mr-3"></i>
-              <span>Transactions</span>
-            </div>
-          </Link>
+            }`}
+          >
+            <i className="fas fa-exchange-alt w-5 h-5 mr-3"></i>
+            <span>Transactions</span>
+          </div>
           
-          <Link href="/accounts">
-            <div className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg cursor-pointer ${
+          <div 
+            onClick={() => navigate("/accounts")}
+            className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg cursor-pointer ${
               isActive('/accounts') ? 'bg-[#e6f9f0] text-[#2ecc71]' : 'text-neutral-700 hover:bg-neutral-100'
-            }`}>
-              <i className="fas fa-wallet w-5 h-5 mr-3"></i>
-              <span>Accounts</span>
-            </div>
-          </Link>
+            }`}
+          >
+            <i className="fas fa-wallet w-5 h-5 mr-3"></i>
+            <span>Accounts</span>
+          </div>
           
-          <Link href="/budgets">
-            <div className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg cursor-pointer ${
+          <div 
+            onClick={() => navigate("/budgets")}
+            className={`flex items-center px-4 py-2.5 text-sm font-medium rounded-lg cursor-pointer ${
               isActive('/budgets') ? 'bg-[#e6f9f0] text-[#2ecc71]' : 'text-neutral-700 hover:bg-neutral-100'
-            }`}>
-              <i className="fas fa-chart-pie w-5 h-5 mr-3"></i>
-              <span>Budgets</span>
-            </div>
-          </Link>
+            }`}
+          >
+            <i className="fas fa-chart-pie w-5 h-5 mr-3"></i>
+            <span>Budgets</span>
+          </div>
           
           <div className="border-t border-neutral-200 my-2 pt-2">
             <button 
